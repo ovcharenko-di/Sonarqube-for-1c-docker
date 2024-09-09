@@ -1,19 +1,17 @@
-version: "2"
 services:
   postgresql:
-    restart: always
-    image: postgres:11
-    networks:
-      - sonarnetwork
+    image: postgres:12
     environment:
       - POSTGRES_USER=sonar
       - POSTGRES_PASSWORD=sonar
     volumes:
       - postgresql:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data
-  sonar:
     restart: always
-    image: daabramov/sonarfor1c:10.4-community
+  sonar:
+    build:
+      context: ./
+      dockerfile: 10-community.Dockerfile
     ports:
       - "32772:9000"
     depends_on:
@@ -21,9 +19,7 @@ services:
     ulimits:
      nofile:
       soft: 65535
-      hard: 65535 
-    networks:
-      - sonarnetwork
+      hard: 65535
     environment:
       - SONAR_WEB_JAVAOPTS=-server -Xms1g -Xmx2g -XX:+HeapDumpOnOutOfMemoryError
       - SONAR_CE_JAVAOPTS=-Xms4g -Xmx4g -XX:+HeapDumpOnOutOfMemoryError
@@ -35,9 +31,7 @@ services:
       - sonarqube_conf:/opt/sonarqube/conf
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
-networks:
-  sonarnetwork:
-    driver: bridge
+    restart: always
 volumes:
   sonarqube_conf:
   sonarqube_data:
